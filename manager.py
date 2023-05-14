@@ -4,10 +4,14 @@ from flask import jsonify
 from flask import request
 from flask import abort
 import datetime
+import os
 
 #inicializing the app 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///StudentsDB.db'
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+app.config['SQLALCHEMY_DATABASE_URI'] =\
+        'sqlite:///' + os.path.join(basedir, 'instance', 'StudentsDB.db')
 
 db = SQLAlchemy(app)
 app.app_context().push()
@@ -45,7 +49,7 @@ def get_students():
 
 #DELETE - delete a student using the matricula number as an input in the URL
 #ex: /student/delete/20004
-@app.route("/student/delete/<int:matricula>")
+@app.route("/student/delete/<int:matricula>", methods=["DELETE"])
 def delete_student(matricula):
     student = Student.query.get(matricula)
     if(student is None):
@@ -57,7 +61,7 @@ def delete_student(matricula):
 #CREATE- create a student with all the data as an input in the URL
 #ex:student/create?matricula=20004&nome=Ana&sobrenome=Muniz&email=livialivia2307@gmail.com
 #&telefone=(85)985089427&curso=Engenharia da Computacao&data=23/07/2001
-@app.route("/student/create")
+@app.route("/student/create", methods=["POST"])
 def create_student():
     data_str = request.args.get('data')
     date_obj = datetime.datetime.strptime(data_str, '%d/%m/%Y')
@@ -78,7 +82,7 @@ def create_student():
 #UPDATE-update all data of a student (we have to provide all information in the input)
 #ex: student/update?matricula=20004&nome=Ana&sobrenome=Matos&email=ana.muniz@ime.eb.br
 #&telefone=(85)985089427&curso=Engenharia da Computacao&data=23/07/2001
-@app.route("/student/update/")
+@app.route("/student/update/", methods=["PUT"])
 def update_student():
     matriculaup = int(request.args.get('matricula'))
         
